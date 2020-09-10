@@ -3,8 +3,8 @@ log:
 api:
   httpport:  4444
 db:
-  dsn:  host=db port=5432 user=igor password=igor dbname=currencier sslmode=disable
-  dialect: postgres
+  dsn:  host=localhost port=5432 user=igor password=igor dbname=currencier sslmode=disable
+  dialect: pgx
 update:
   time: 1m
-  source:  file:///C:/soft/XML_daily.asp
+  source:  http://www.cbr.ru/scripts/XML_daily.asp

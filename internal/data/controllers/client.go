@@ -3,10 +3,14 @@ package controllers
 import (
 	"context"
 	"encoding/xml"
+	"fmt"
 	"github.com/pkg/errors"
 	"github.com/redselig/currencier/internal/domain/entity"
+	"golang.org/x/text/encoding/charmap"
 	"io"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -55,6 +59,14 @@ func (hc *HTTPClient) Load(ctx context.Context) ([]*entity.Currency, error) {
 
 func XMLExtract(rc io.ReadCloser) ([]*entity.Currency, error) {
 	decoded := xml.NewDecoder(rc)
+	decoded.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
+		switch charset {
+		case "windows-1251":
+			return charmap.Windows1251.NewDecoder().Reader(input), nil
+		default:
+			return nil, fmt.Errorf("unknown charset: %s", charset)
+		}
+	}
 	vals := ValCurs{}
 	err := decoded.Decode(&vals)
 	if err != nil {
@@ -63,24 +75,31 @@ func XMLExtract(rc io.ReadCloser) ([]*entity.Currency, error) {
 	if len(vals.Valute) == 0 {
 		return nil, errors.Wrapf(err, ErrXML)
 	}
-	cs:=XMLValutesToCurrencies(vals.Valute)
+	cs,err:=XMLValutesToCurrencies(vals.Valute)
+	if err != nil {
+		return nil, errors.Wrapf(err, ErrXML)
+	}
 	return cs,nil
 }
 
-func XMLValutesToCurrencies(vls []Valute) []*entity.Currency {
+func XMLValutesToCurrencies(vls []Valute) ([]*entity.Currency,error) {
 	cs:=[]*entity.Currency{}
 	for _, valute := range vls {
+		rate, err := strconv.ParseFloat(strings.Replace(valute.Value,",",".",1), 64)
+		if err != nil {
+			return nil,err
+		}
 		c:=entity.Currency{
 			ID:       valute.ID,
 			NumCode:  valute.NumCode,
 			CharCode: valute.CharCode,
 			Nominal:  valute.Nominal,
 			Name:     valute.Name,
-			Value:    valute.Value,
+			Value:    rate,
 		}
 		cs = append(cs, &c)
 	}
-	return cs
+	return cs,nil
 }
 
 type ValCurs struct {
@@ -92,5 +111,5 @@ type Valute struct {
 	CharCode string  `xml:"CharCode"`
 	Nominal  int     `xml:"Nominal"`
 	Name     string  `xml:"Name"`
-	Value    float64 `xml:"Value"`
+	Value    string `xml:"Value"`
 }

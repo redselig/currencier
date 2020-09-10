@@ -13,14 +13,14 @@ prepare_lint:
 lint: prepare_lint fmt tidy
 	golangci-lint run ./...
 run:
-	go run main.go
+	go run main.go start
 build:
-	go build -o currencier main.go
+	go build -o currencier.exe main.go
 test:
 	go test -race ./...
 testv:
 	go test -v -race ./...
-docker-up: os
+docker-up:
 	docker-compose -f docker-compose.yml up -d
 docker-down:
 	docker-compose -f docker-compose.yml down

@@ -23,6 +23,6 @@ type DB struct {
 }
 
 type Update struct {
-	time string `yaml:"time"`
-	source string `yaml:"source"`
+	Time string `yaml:"time"`
+	Source string `yaml:"source"`
 }

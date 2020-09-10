@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/gorilla/mux"
 	"github.com/redselig/currencier/internal/domain/entity"
 	"github.com/redselig/currencier/internal/domain/usecase"
 	"github.com/redselig/currencier/internal/mocks"
@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 )
 var (
@@ -34,40 +35,79 @@ func TestHTTPServer_Serve(t *testing.T) {
 
 	currensier:=usecase.NewCurrencierInteractor(nil,repo)
 	server:=NewHttpServer("",logger,currensier)
-	w := httptest.NewRecorder()
 	testCurrencyAnswer,err:=json.Marshal(testCurrency)
 	require.Nil(t, err)
-
-	t.Run("GET Currency by id", func(t *testing.T) {
+	testCurrenciesAnswer,err:=json.Marshal([]*entity.Currency{&testCurrency})
+	require.Nil(t, err)
+	req:=httptest.NewRequest(http.MethodGet, "/", nil)
+	t.Run("GET currency by id", func(t *testing.T) {
 		tCases := []struct {
 			title string
-			r     *http.Request
+			vars  map[string]string
 			code  int
 			body string
 		}{
 			{"good get",
-				httptest.NewRequest(http.MethodGet, fmt.Sprintf("http://fakedns.com/currency/%v", testID), nil),
+				map[string]string{"id": testID,},
 				200,
 				string(testCurrencyAnswer),
 			},
 			{"bad get",
-				httptest.NewRequest(http.MethodGet, "http://fakedns/currency", nil),
+				map[string]string{},
 				400,
-				ErrID,
+				ErrID+"\n",
 			},
 		}
 		for _, tcase := range tCases {
 			t.Run(tcase.title, func(t *testing.T) {
-				server.getCurrency(w, tcase.r)
+				w := httptest.NewRecorder()
+				req = mux.SetURLVars(req, tcase.vars)
+
+				server.getCurrency(w, req)
 				resp := w.Result()
 				body,err:=ioutil.ReadAll(resp.Body)
 				require.Nil(t, err)
 				code:=resp.StatusCode
+
 				require.Equal(t, tcase.code, code)
-				require.Equal(t, tcase.body, body)
+				require.Equal(t, tcase.body, string(body))
 			})
 
 		}
 	})
+	t.Run("GET all currencies", func(t *testing.T) {
+		tCases := []struct {
+			title string
+			vars  map[string]string
+			code  int
+			body string
+		}{
+			{"good get Currencies",
+				map[string]string{"limit": strconv.Itoa(testLimit),},
+				200,
+				string(testCurrenciesAnswer),
+			},
+			{"bad get Currencies",
+				map[string]string{"limit": "bad_value",},
+				400,
+				"strconv.Atoi: parsing \"bad_value\": invalid syntax\n",
+			},
+		}
+		for _, tcase := range tCases {
+			t.Run(tcase.title, func(t *testing.T) {
+				w := httptest.NewRecorder()
+				req = mux.SetURLVars(req, tcase.vars)
 
+				server.getCurrencies(w, req)
+				resp := w.Result()
+				body,err:=ioutil.ReadAll(resp.Body)
+				require.Nil(t, err)
+				code:=resp.StatusCode
+
+				require.Equal(t, tcase.code, code)
+				require.Equal(t, tcase.body, string(body))
+			})
+
+		}
+	})
 }

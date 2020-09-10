@@ -23,7 +23,7 @@ func GetRequestID(ctx context.Context) (reqID string) {
 
 func SetRequestID(ctx context.Context) context.Context {
 	if len(GetRequestID(ctx)) == 0 {
-		reqid := uuid.NewV4()
+		reqid, _ := uuid.NewV4()
 		return context.WithValue(ctx, RequestID, reqid.String())
 	}
 	return ctx

@@ -15,7 +15,10 @@ limitations under the License.
 */
 package main
 
-import "github.com/redselig/currencier/cmd"
+import (
+	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/redselig/currencier/cmd"
+)
 
 func main() {
 	cmd.Execute()

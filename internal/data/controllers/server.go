@@ -55,7 +55,7 @@ func (s *HTTPServer) Serve() error {
 func (s *HTTPServer) getCurrency(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, ok := vars["id"]
-	if !ok{
+	if !ok || id==""{
 		s.httpError(r.Context(), w, ErrID, http.StatusBadRequest)
 		return
 	}
@@ -81,10 +81,12 @@ func (s *HTTPServer) getCurrencies(w http.ResponseWriter, r *http.Request) {
 	iLimit,err:=strconv.Atoi(limit)
 	if err != nil {
 		s.httpError(r.Context(), w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	iOffset,err:=strconv.Atoi(offset)
 	if err != nil {
 		s.httpError(r.Context(), w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	c, err := s.currencier.GetCurrenciesPage(r.Context(), iLimit, iOffset)

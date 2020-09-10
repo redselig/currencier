@@ -31,7 +31,7 @@ func (a *App) Start(cfg *Config, debug bool) (err error) {
 		}
 	}
 	logger:=zerologger.NewLogger(wr,debug)
-	client:=controllers.NewHTTPClient(cfg.Update.source,30)
+	client:=controllers.NewHTTPClient(cfg.Update.Source,30)
 	repo,err:=db.NewPGSRepo(cfg.DB.Dialect,cfg.DB.DSN)
 	if err!=nil{
 		return errors.Wrap(err,"cant't initialize repository")
@@ -50,7 +50,7 @@ func (a *App) Start(cfg *Config, debug bool) (err error) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		if err:=a.update(ctx,currensier,cfg.Update.time,logger);err!=nil{
+		if err:=a.update(ctx,currensier,cfg.Update.Time,logger);err!=nil{
 			logger.Log(context.Background(),errors.Wrapf(err, "can't start updating currencies"))
 		}
 	}()
@@ -59,16 +59,23 @@ func (a *App) Start(cfg *Config, debug bool) (err error) {
 	<-c
 	cancel()
 	server.StopServe()
+	wg.Wait()
 	return nil
 }
 
 func (a *App) update(ctx context.Context, currencier usecase.Currencier,timeout string,logger usecase.Logger) error  {
 	defer logger.Log(ctx,"stop update currencies in repo")
+
 	d,err:=time.ParseDuration(timeout)
 	if err!=nil{
 		return errors.Wrap(err,"cant't parse update timeout")
 	}
 	ticker:=time.Tick(d)
+
+	if err:=currencier.UpdateCurrencies(ctx);err!=nil{
+		logger.Log(ctx,errors.Wrapf(err, "can't update currencies in repo"))
+	}
+
 	for  {
 		select {
 		case <-ctx.Done():

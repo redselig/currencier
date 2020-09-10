@@ -1,0 +1,10 @@
+log:
+  file:  ./currencier.log
+api:
+  httpport:  4444
+db:
+  dsn:  host=db port=5432 user=igor password=igor dbname=currencier sslmode=disable
+  dialect: postgres
+update:
+  time: 1m
+  source:  file:///C:/soft/XML_daily.asp

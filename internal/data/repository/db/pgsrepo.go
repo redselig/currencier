@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+
 	"github.com/pkg/errors"
+
 	"github.com/redselig/currencier/internal/domain/entity"
 )
 
@@ -33,7 +35,7 @@ func (repo *PGSRepo) SetAll(ctx context.Context, cs []*entity.Currency) error {
 	sqlStr := "insert into public.currency (id, name, rate) values "
 	var vals []interface{}
 	for i, row := range cs {
-		sqlStr += fmt.Sprintf("($%v,$%v,$%v),",(i*3)+1,(i*3)+2,(i*3)+3)
+		sqlStr += fmt.Sprintf("($%v,$%v,$%v),", (i*3)+1, (i*3)+2, (i*3)+3)
 		vals = append(vals, row.ID, row.Name, row.Value/float64(row.Nominal))
 	}
 	sqlStr = sqlStr[0 : len(sqlStr)-1]
@@ -66,7 +68,7 @@ func (repo *PGSRepo) GetByID(ctx context.Context, id string) (*entity.Currency, 
 		return nil, nil
 	}
 
-	c := entity.Currency{Nominal:  1}
+	c := entity.Currency{Nominal: 1}
 	err := row.Scan(&c.ID, &c.Name, &c.Value)
 	if err != nil {
 		return nil, SQLError(err, ErrGet)
@@ -77,7 +79,7 @@ func (repo *PGSRepo) GetByID(ctx context.Context, id string) (*entity.Currency, 
 
 func (repo *PGSRepo) GetPage(ctx context.Context, limit, offset int) ([]*entity.Currency, error) {
 	rows, err := repo.db.QueryContext(ctx, `select id, name, rate 
-												from public.currency order by id limit $2 offset $3;`, limit, offset)
+												from public.currency order by id limit $1 offset $2;`, limit, offset)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, SQLError(err, ErrGet)
 	}
@@ -110,7 +112,7 @@ func (repo *PGSRepo) Close() error {
 func (repo *PGSRepo) rowsToCurrencies(rows *sql.Rows, errorString string) ([]*entity.Currency, error) {
 	var currencies []*entity.Currency
 	for rows.Next() {
-		c := entity.Currency{Nominal:  1}
+		c := entity.Currency{Nominal: 1}
 		err := rows.Scan(&c.ID, &c.Name, &c.Value)
 		if err != nil {
 			return nil, SQLError(err, errorString)

@@ -3,3 +3,8 @@
 {"Request id":"","time":"2020-09-10T23:05:29+03:00","message":"can't start updating currencies: cant't parse update timeout: time: invalid duration "}
 {"Request id":"","time":"2020-09-10T23:06:35+03:00","message":"stopping http server"}
 {"Request id":"","time":"2020-09-10T23:06:35+03:00","message":"http server stopped"}
+{"Request id":"","time":"2020-09-11T00:41:54+03:00","message":"starting http server on address [0.0.0.0:4444]"}
+{"Request id":"","time":"2020-09-11T00:41:56+03:00","message":"can't update currencies in repo: can't load currencies: can't add new rows to table: failed to connect to `host=db user=igor database=currencier`: hostname resolving error (lookup db: no such host)"}
+{"Request id":"","time":"2020-09-11T00:42:12+03:00","message":"stop update currencies in repo"}
+{"Request id":"","time":"2020-09-11T00:42:12+03:00","message":"stopping http server"}
+{"Request id":"","time":"2020-09-11T00:42:12+03:00","message":"http server stopped"}

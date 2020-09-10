@@ -3,17 +3,19 @@ package controllers
 import (
 	"context"
 	"encoding/json"
-	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
-	"github.com/redselig/currencier/internal/domain/usecase"
-	"github.com/redselig/currencier/internal/util"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
+
+	"github.com/redselig/currencier/internal/domain/usecase"
+	"github.com/redselig/currencier/internal/util"
 )
 
 const (
-	ErrID="must be id in query"
+	ErrID = "must be id in query"
 )
 
 type HTTPServer struct {
@@ -32,7 +34,7 @@ func NewHttpServer(addr string, logger usecase.Logger, currencier usecase.Curren
 }
 
 func (s *HTTPServer) Serve() error {
-	s.logger.Log(context.Background(), "starting http server on address [%v]",s.server.Addr)
+	s.logger.Log(context.Background(), "starting http server on address [%v]", s.server.Addr)
 
 	router := mux.NewRouter()
 
@@ -40,14 +42,14 @@ func (s *HTTPServer) Serve() error {
 	router.HandleFunc("/currencies", s.getCurrencies).Methods(http.MethodGet)
 	router.HandleFunc("/lazycurrencies", s.getLazyCurrencies).Methods(http.MethodGet)
 
-	router.HandleFunc("/currency/{id}", s.getCurrency).Methods(http.MethodGet)//todo: should be /currencies/{id}
+	router.HandleFunc("/currency/{id}", s.getCurrency).Methods(http.MethodGet) //todo: should be /currencies/{id}
 
 	handler := s.accessLogMiddleware(router)
 	handler = s.panicMiddleware(handler)
 	s.server.Handler = handler
 
 	if err := s.server.ListenAndServe(); err != http.ErrServerClosed {
-		return errors.Wrapf(err, "can't start listen address [%v]",s.server.Addr)
+		return errors.Wrapf(err, "can't start listen address [%v]", s.server.Addr)
 	}
 	return nil
 }
@@ -55,7 +57,7 @@ func (s *HTTPServer) Serve() error {
 func (s *HTTPServer) getCurrency(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, ok := vars["id"]
-	if !ok || id==""{
+	if !ok || id == "" {
 		s.httpError(r.Context(), w, ErrID, http.StatusBadRequest)
 		return
 	}
@@ -71,19 +73,19 @@ func (s *HTTPServer) getCurrencies(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	limit, ok := vars["limit"]
-	if !ok{
-		limit="10"
+	if !ok {
+		limit = "10"
 	}
 	offset, ok := vars["offset"]
-	if !ok{
-		offset="0"
+	if !ok {
+		offset = "0"
 	}
-	iLimit,err:=strconv.Atoi(limit)
+	iLimit, err := strconv.Atoi(limit)
 	if err != nil {
 		s.httpError(r.Context(), w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	iOffset,err:=strconv.Atoi(offset)
+	iOffset, err := strconv.Atoi(offset)
 	if err != nil {
 		s.httpError(r.Context(), w, err.Error(), http.StatusBadRequest)
 		return
@@ -101,14 +103,14 @@ func (s *HTTPServer) getLazyCurrencies(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	limit, ok := vars["limit"]
-	if !ok{
-		limit="10"
+	if !ok {
+		limit = "10"
 	}
 	lastID, ok := vars["lastid"]
-	if !ok{
-		lastID="0"
+	if !ok {
+		lastID = "0"
 	}
-	iLimit,err:=strconv.Atoi(limit)
+	iLimit, err := strconv.Atoi(limit)
 	if err != nil {
 		s.httpError(r.Context(), w, err.Error(), http.StatusBadRequest)
 	}
@@ -175,5 +177,5 @@ func (s *HTTPServer) httpAnswer(w http.ResponseWriter, msg interface{}, code int
 		code = http.StatusInternalServerError
 	}
 	w.WriteHeader(code)
-	w.Write(jmsg)
+	w.Write(jmsg) //nolint:errcheck
 }

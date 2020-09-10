@@ -2,6 +2,7 @@ package util
 
 import (
 	"context"
+
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -11,7 +12,6 @@ const (
 )
 
 type contextKey string
-
 
 func GetRequestID(ctx context.Context) (reqID string) {
 	if ctx == nil {
@@ -23,9 +23,8 @@ func GetRequestID(ctx context.Context) (reqID string) {
 
 func SetRequestID(ctx context.Context) context.Context {
 	if len(GetRequestID(ctx)) == 0 {
-		reqid, _ := uuid.NewV4()
+		reqid := uuid.NewV4()
 		return context.WithValue(ctx, RequestID, reqid.String())
 	}
 	return ctx
 }
-

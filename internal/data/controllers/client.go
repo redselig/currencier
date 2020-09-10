@@ -4,14 +4,17 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/redselig/currencier/internal/domain/entity"
-	"golang.org/x/text/encoding/charmap"
 	"io"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
+	"golang.org/x/text/encoding/charmap"
+
+	"github.com/redselig/currencier/internal/domain/entity"
 )
 
 const (
@@ -75,21 +78,22 @@ func XMLExtract(rc io.ReadCloser) ([]*entity.Currency, error) {
 	if len(vals.Valute) == 0 {
 		return nil, errors.Wrapf(err, ErrXML)
 	}
-	cs,err:=XMLValutesToCurrencies(vals.Valute)
+	cs, err := XMLValutesToCurrencies(vals.Valute)
 	if err != nil {
 		return nil, errors.Wrapf(err, ErrXML)
 	}
-	return cs,nil
+	return cs, nil
 }
 
-func XMLValutesToCurrencies(vls []Valute) ([]*entity.Currency,error) {
-	cs:=[]*entity.Currency{}
+func XMLValutesToCurrencies(vls []Valute) ([]*entity.Currency, error) {
+	cs := []*entity.Currency{}
 	for _, valute := range vls {
-		rate, err := strconv.ParseFloat(strings.Replace(valute.Value,",",".",1), 64)
+		rate, err := strconv.ParseFloat(strings.Replace(valute.Value, ",", ".", 1), 64)
 		if err != nil {
-			return nil,err
+			return nil, err
 		}
-		c:=entity.Currency{
+		rate = math.Round(rate*100) / 100
+		c := entity.Currency{
 			ID:       valute.ID,
 			NumCode:  valute.NumCode,
 			CharCode: valute.CharCode,
@@ -99,17 +103,17 @@ func XMLValutesToCurrencies(vls []Valute) ([]*entity.Currency,error) {
 		}
 		cs = append(cs, &c)
 	}
-	return cs,nil
+	return cs, nil
 }
 
 type ValCurs struct {
 	Valute []Valute `xml:"Valute"`
 }
 type Valute struct {
-	ID       string  `xml:"ID"`
-	NumCode  int     `xml:"NumCode"`
-	CharCode string  `xml:"CharCode"`
-	Nominal  int     `xml:"Nominal"`
-	Name     string  `xml:"Name"`
+	ID       string `xml:"ID,attr"`
+	NumCode  int    `xml:"NumCode"`
+	CharCode string `xml:"CharCode"`
+	Nominal  int    `xml:"Nominal"`
+	Name     string `xml:"Name"`
 	Value    string `xml:"Value"`
 }

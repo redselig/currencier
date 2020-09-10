@@ -1,0 +1,39 @@
+language: go
+
+go:
+  - "1.14"
+
+os:
+  - linux
+
+git:
+  depth: 1
+  quiet: true
+  submodules: false
+
+notifications:
+  email: false
+
+env:
+  global:
+    - GO111MODULE=on
+    - GOPROXY=https://proxy.golang.org
+    - BRANCH="${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}"
+    - DOCKER_COMPOSE_VERSION=1.26.2
+
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+stages:
+  - name: Tests
+
+jobs:
+  include:
+    - stage: "Tests"
+      name: "Makefile"
+      install: go mod download
+      script:
+        - make lint
+        - make test

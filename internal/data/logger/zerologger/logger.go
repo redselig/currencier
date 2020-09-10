@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -14,7 +13,6 @@ import (
 )
 
 var _ usecase.Logger = (*Logger)(nil)
-var sb strings.Builder
 
 type Logger struct {
 	logger  *zerolog.Logger

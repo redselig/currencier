@@ -3,12 +3,14 @@ package db
 import (
 	"context"
 	"database/sql"
+	"testing"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/pkg/errors"
-	"github.com/redselig/currencier/internal/domain/entity"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"testing"
+
+	"github.com/redselig/currencier/internal/domain/entity"
 )
 
 var (
@@ -98,22 +100,21 @@ func (s *Suite) TestPGSRepo_GetPage() {
 			AddRow(testID, testName, testRate).
 			AddRow(testID, testName, testRate)
 
-
 		s.mock.ExpectQuery(`select id, name, rate from`).
-			WithArgs(testLimit,testOffset).
+			WithArgs(testLimit, testOffset).
 			WillReturnRows(rows)
 
-		cs, err := s.repo.GetPage(ctx, testLimit,testOffset)
+		cs, err := s.repo.GetPage(ctx, testLimit, testOffset)
 		require.Nil(s.T(), err)
-		require.Equal(s.T(), []*entity.Currency{&testCurrency,&testCurrency,&testCurrency}, cs)
+		require.Equal(s.T(), []*entity.Currency{&testCurrency, &testCurrency, &testCurrency}, cs)
 	})
 	s.Run("no rows: pagination", func() {
 		rows := sqlmock.NewRows([]string{"id", "name", "rate"})
 		s.mock.ExpectQuery(`select id, name, rate from`).
-			WithArgs(testLimit,testOffset).
+			WithArgs(testLimit, testOffset).
 			WillReturnRows(rows)
 
-		cs, err := s.repo.GetPage(ctx, testLimit,testOffset)
+		cs, err := s.repo.GetPage(ctx, testLimit, testOffset)
 
 		require.Nil(s.T(), err)
 		require.Nil(s.T(), cs)
@@ -122,7 +123,7 @@ func (s *Suite) TestPGSRepo_GetPage() {
 		s.mock.ExpectQuery(`select id, name, rate from`).
 			WillReturnError(sql.ErrConnDone)
 
-		cs, err := s.repo.GetPage(ctx, testLimit,testOffset)
+		cs, err := s.repo.GetPage(ctx, testLimit, testOffset)
 
 		require.Nil(s.T(), cs)
 		require.Truef(s.T(), errors.Is(err, sql.ErrConnDone), "GetByID not return cause error")
@@ -137,22 +138,21 @@ func (s *Suite) TestPGSRepo_GetLazy() {
 			AddRow(testID, testName, testRate).
 			AddRow(testID, testName, testRate)
 
-
 		s.mock.ExpectQuery(`select id, name, rate from`).
-			WithArgs(testID,testLimit).
+			WithArgs(testID, testLimit).
 			WillReturnRows(rows)
 
-		cs, err := s.repo.GetLazy(ctx, testLimit,testID)
+		cs, err := s.repo.GetLazy(ctx, testLimit, testID)
 		require.Nil(s.T(), err)
-		require.Equal(s.T(), []*entity.Currency{&testCurrency,&testCurrency,&testCurrency}, cs)
+		require.Equal(s.T(), []*entity.Currency{&testCurrency, &testCurrency, &testCurrency}, cs)
 	})
 	s.Run("no rows: lazy load", func() {
 		rows := sqlmock.NewRows([]string{"id", "name", "rate"})
 		s.mock.ExpectQuery(`select id, name, rate from`).
-			WithArgs(testID,testLimit).
+			WithArgs(testID, testLimit).
 			WillReturnRows(rows)
 
-		cs, err := s.repo.GetLazy(ctx, testLimit,testID)
+		cs, err := s.repo.GetLazy(ctx, testLimit, testID)
 
 		require.Nil(s.T(), err)
 		require.Nil(s.T(), cs)
@@ -161,7 +161,7 @@ func (s *Suite) TestPGSRepo_GetLazy() {
 		s.mock.ExpectQuery(`select id, name, rate from`).
 			WillReturnError(sql.ErrConnDone)
 
-		cs, err := s.repo.GetLazy(ctx, testLimit,testID)
+		cs, err := s.repo.GetLazy(ctx, testLimit, testID)
 
 		require.Nil(s.T(), cs)
 		require.Truef(s.T(), errors.Is(err, sql.ErrConnDone), "GetByID not return cause error")

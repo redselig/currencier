@@ -3,7 +3,7 @@ log:
 api:
   httpport:  4444
 db:
-  dsn:  host=localhost port=5432 user=igor password=igor dbname=currencier sslmode=disable
+  dsn:  host=db port=5432 user=igor password=igor dbname=currencier sslmode=disable
   dialect: pgx
 update:
   time: 1m

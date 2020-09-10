@@ -1,0 +1,5 @@
+{"Request id":"","time":"2020-09-10T23:05:29+03:00","message":"starting http server on address [0.0.0.0:4444]"}
+{"Request id":"","time":"2020-09-10T23:05:29+03:00","message":"stop update currencies in repo"}
+{"Request id":"","time":"2020-09-10T23:05:29+03:00","message":"can't start updating currencies: cant't parse update timeout: time: invalid duration "}
+{"Request id":"","time":"2020-09-10T23:06:35+03:00","message":"stopping http server"}
+{"Request id":"","time":"2020-09-10T23:06:35+03:00","message":"http server stopped"}

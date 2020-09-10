@@ -33,4 +33,4 @@ COPY --from=builder /app/currencier .
 COPY --from=builder /app/config/config.yaml .
 
 # Command to run the executable
-CMD ["./currencier","--config","config.yaml","start"]
+CMD ["./currencier","--config","config.yaml","start","--debug"]

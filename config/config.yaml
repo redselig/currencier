@@ -6,5 +6,5 @@ db:
   dsn:  host=db port=5432 user=igor password=igor dbname=currencier sslmode=disable
   dialect: pgx
 update:
-  time: 1m
+  time: 5s
   source:  http://www.cbr.ru/scripts/XML_daily.asp

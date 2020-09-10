@@ -70,22 +70,22 @@ func (s *HTTPServer) getCurrency(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *HTTPServer) getCurrencies(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+	vars := r.URL.Query()
 
 	limit, ok := vars["limit"]
-	if !ok {
-		limit = "10"
+	if !ok || len(limit) != 1 {
+		limit = []string{"10"}
 	}
 	offset, ok := vars["offset"]
-	if !ok {
-		offset = "0"
+	if !ok || len(offset) != 1 {
+		offset = []string{"0"}
 	}
-	iLimit, err := strconv.Atoi(limit)
+	iLimit, err := strconv.Atoi(limit[0])
 	if err != nil {
 		s.httpError(r.Context(), w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	iOffset, err := strconv.Atoi(offset)
+	iOffset, err := strconv.Atoi(offset[0])
 	if err != nil {
 		s.httpError(r.Context(), w, err.Error(), http.StatusBadRequest)
 		return
@@ -100,22 +100,22 @@ func (s *HTTPServer) getCurrencies(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *HTTPServer) getLazyCurrencies(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+	vars := r.URL.Query()
 
 	limit, ok := vars["limit"]
-	if !ok {
-		limit = "10"
+	if !ok || len(limit) != 1 {
+		limit = []string{"10"}
 	}
 	lastID, ok := vars["lastid"]
-	if !ok {
-		lastID = "0"
+	if !ok || len(lastID) != 1 {
+		lastID = []string{""}
 	}
-	iLimit, err := strconv.Atoi(limit)
+	iLimit, err := strconv.Atoi(limit[0])
 	if err != nil {
 		s.httpError(r.Context(), w, err.Error(), http.StatusBadRequest)
 	}
 
-	c, err := s.currencier.GetCurrenciesLazy(r.Context(), iLimit, lastID)
+	c, err := s.currencier.GetCurrenciesLazy(r.Context(), iLimit, lastID[0])
 	if err != nil {
 		s.httpError(r.Context(), w, err.Error(), http.StatusBadRequest)
 		return

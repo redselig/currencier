@@ -1,3 +1,9 @@
+[![Build Status](https://travis-ci.com/redselig/currencier.svg?branch=master)](https://travis-ci.com/redselig/currencier)
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/redselig/currencier)](https://goreportcard.com/report/github.com/redselig/currencier)
+
+Currencier - валютный торговец =)
+
 Необходимо реализовать сервис со следующим функционалом на языке Golang  >= 1.13.
 
 В базе данных Mysql/PosgreSql должна быть таблица currency c колонками:
@@ -11,3 +17,13 @@ insert_dt – время обновления валюты
 Реализовать 2 REST API метода:
 GET /currencies — должен возвращать список курсов валют с возможность пагинации
 GET /currency/ — должен возвращать курс валюты для переданного id
+
+Добавил ручку GET /lazycurrencies для более оптимальной пагинации(ленивой) без offset в БД
+
+Порт: 4444
+
+/currency/R01589
+
+/currencies?limit=10&offset=5
+
+/lazycurrencies?limit=10&lastid=R01589

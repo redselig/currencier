@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"testing"
 
 	"github.com/gorilla/mux"
@@ -28,7 +27,6 @@ var (
 		Name:     testName,
 		Value:    testRate,
 	}
-	testLimit = 3
 )
 
 func TestHTTPServer_Serve(t *testing.T) {
@@ -80,17 +78,17 @@ func TestHTTPServer_Serve(t *testing.T) {
 	t.Run("GET all currencies", func(t *testing.T) {
 		tCases := []struct {
 			title string
-			vars  map[string]string
+			req   *http.Request
 			code  int
 			body  string
 		}{
 			{"good get Currencies",
-				map[string]string{"limit": strconv.Itoa(testLimit)},
+				httptest.NewRequest(http.MethodGet, "/currencies?limit=10&offset=5", nil),
 				200,
 				string(testCurrenciesAnswer),
 			},
 			{"bad get Currencies",
-				map[string]string{"limit": "bad_value"},
+				httptest.NewRequest(http.MethodGet, "/currencies?limit=bad_value&offset=5", nil),
 				400,
 				"strconv.Atoi: parsing \"bad_value\": invalid syntax\n",
 			},
@@ -98,9 +96,8 @@ func TestHTTPServer_Serve(t *testing.T) {
 		for _, tcase := range tCases {
 			t.Run(tcase.title, func(t *testing.T) {
 				w := httptest.NewRecorder()
-				req = mux.SetURLVars(req, tcase.vars)
 
-				server.getCurrencies(w, req)
+				server.getCurrencies(w, tcase.req)
 				resp := w.Result()
 				body, err := ioutil.ReadAll(resp.Body)
 				require.Nil(t, err)
